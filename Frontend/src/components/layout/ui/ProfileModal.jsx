@@ -23,12 +23,8 @@ const ProfileModal = ({ isOpen, onClose, user, onLogout }) => {
   if (!isOpen) return null;
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard", color: "#6366f1" },
     { icon: User, label: "My Profile", path: "/profile", color: "#8b5cf6" },
-    { icon: BookOpen, label: "My Courses", path: "/my-courses", color: "#10b981" },
     { icon: Award, label: "Certificates", path: "/certificates", color: "#f59e0b" },
-    { icon: Calendar, label: "Schedule", path: "/schedule", color: "#0ea5e9" },
-    { icon: TrendingUp, label: "Progress", path: "/progress", color: "#ef4444" },
     { icon: Settings, label: "Settings", path: "/settings", color: "#6b7280" },
   ];
 

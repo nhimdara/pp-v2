@@ -74,7 +74,6 @@ const LoginPage = ({ onAuthSuccess }) => {
     focus:bg-cyan-500/10 focus:ring-2 focus:ring-cyan-500/30 placeholder-gray-500`;
 
   return (
-
     <div className="min-h-screen bg-[#05090f] font-sans relative overflow-hidden">
       {/* Interactive Cursor Glow */}
       <div
@@ -169,7 +168,7 @@ const LoginPage = ({ onAuthSuccess }) => {
                   <p className="text-gray-400 text-xs">
                     Join our community of learners and start your journey today.
                     <Link
-                      to="/register"
+                      to="/"
                       className="text-cyan-400 font-bold ml-1 hover:underline"
                     >
                       Create account →

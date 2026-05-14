@@ -10,6 +10,10 @@ import {
   GraduationCap,
   X,
 } from "lucide-react";
+import {
+  loginMiddleware,
+  registerMiddleware,
+} from "../../../auth/authMiddleware";
 
 const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,51 +36,8 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
     if (authError) setAuthError("");
   };
 
-  const mockAuthenticate = async (data, isLoginMode) => {
-    await new Promise((r) => setTimeout(r, 1500));
-    if (isLoginMode) {
-      if (data.email === "test@example.com" && data.password === "password123") {
-        return {
-          success: true,
-          user: {
-            id: "1",
-            name: "John Doe",
-            email: data.email,
-            avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-            role: "Student",
-            joinDate: "2024-01-15",
-            progress: 75,
-            coursesEnrolled: 8,
-            certificates: 3,
-            achievements: ["Quick Learner", "Top Performer"],
-          },
-          token: "mock-jwt-token-12345",
-        };
-      } else {
-        throw new Error("Invalid email or password");
-      }
-    } else {
-      return {
-        success: true,
-        user: {
-          id: "2",
-          name: data.name,
-          email: data.email,
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=6366f1&color=fff&size=256`,
-          role: "Student",
-          joinDate: new Date().toISOString().split("T")[0],
-          progress: 0,
-          coursesEnrolled: 0,
-          certificates: 0,
-          achievements: ["New Member"],
-        },
-        token: "mock-jwt-token-67890",
-      };
-    }
-  };
-
   const handleSubmit = async (e) => {
-    e.preventDefault(); // CRITICAL: Prevents page refresh
+    e.preventDefault();
     setIsLoading(true);
     setAuthError("");
 
@@ -101,25 +62,32 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
     }
 
     try {
-      const res = await mockAuthenticate(formData, isLogin);
-      if (res.success) {
-        // Store in localStorage
-        localStorage.setItem("user", JSON.stringify(res.user));
-        localStorage.setItem("token", res.token);
-        
-        // Call the success callback with user data
-        onAuthSuccess(res.user);
-        
-        // Close modal and reset form
-        onClose();
-        setFormData({
-          name: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          rememberMe: false,
-        });
+      // Use real auth middleware (same as LoginPage / RegisterPage)
+      const result = isLogin
+        ? loginMiddleware(formData.email.trim(), formData.password)
+        : registerMiddleware(
+            formData.name.trim(),
+            formData.email.trim(),
+            formData.password,
+          );
+
+      if (!result.success) {
+        setAuthError(result.error || "Authentication failed.");
+        setIsLoading(false);
+        return;
       }
+
+      // Reset form — App.jsx's handleAuthSuccess closes the modal
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        rememberMe: false,
+      });
+
+      // Pass full middleware result so App.jsx can do role-based redirect
+      onAuthSuccess(result);
     } catch (err) {
       setAuthError(err.message || "Authentication failed.");
     } finally {
@@ -153,26 +121,26 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
     <div className="fixed inset-0 z-50 overflow-y-auto body-font">
       <div className="flex min-h-screen items-end sm:items-center justify-center px-4 pt-4 pb-20 sm:p-0">
         {/* Backdrop */}
-        <div 
-          className="fixed inset-0 bg-black/65 backdrop-blur-md transition-opacity" 
-          onClick={onClose} 
+        <div
+          className="fixed inset-0 bg-black/65 backdrop-blur-md transition-opacity"
+          onClick={onClose}
           aria-hidden="true"
         />
-        
+
         {/* Modal */}
         <div className="relative w-full sm:max-w-md overflow-hidden rounded-t-3xl sm:rounded-3xl bg-white shadow-2xl ring-1 ring-black/5 transform transition-all">
           {/* Top gradient bar */}
           <div className="h-1.5 w-full bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400" />
-          
+
           {/* Close button */}
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="absolute right-5 top-5 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all z-10"
             aria-label="Close modal"
           >
             <X className="h-4 w-4" />
           </button>
-          
+
           <div className="px-7 sm:px-8 pt-7 pb-8 max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="mb-7">
@@ -183,7 +151,9 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
                 {isLogin ? "Welcome back" : "Create account"}
               </h2>
               <p className="text-sm text-gray-500 mt-1">
-                {isLogin ? "Sign in to continue your journey" : "Start learning for free today"}
+                {isLogin
+                  ? "Sign in to continue your journey"
+                  : "Start learning for free today"}
               </p>
             </div>
 
@@ -200,8 +170,8 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
                 { icon: Chrome, label: "Google", provider: "google" },
                 { icon: Github, label: "GitHub", provider: "github" },
               ].map(({ icon: Icon, label, provider }) => (
-                <button 
-                  key={label} 
+                <button
+                  key={label}
                   onClick={(e) => handleSocialLogin(provider, e)}
                   className="group flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-700 transition-all"
                 >
@@ -278,12 +248,16 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
                     required
                     className="w-full pl-10 pr-10 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 outline-none transition-all"
                   />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowPassword(!showPassword)} 
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -324,7 +298,7 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
                       Remember me
                     </span>
                   </label>
-                  <button 
+                  <button
                     type="button"
                     onClick={(e) => {
                       e.preventDefault();
@@ -346,9 +320,24 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    <svg
+                      className="animate-spin h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
                     </svg>
                     <span>Please wait…</span>
                   </span>
@@ -362,11 +351,13 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
 
             {/* Toggle auth mode */}
             <div className="mt-5 text-center">
-              <button 
-                onClick={toggleAuthMode} 
+              <button
+                onClick={toggleAuthMode}
                 className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
               >
-                {isLogin ? "Don't have an account? Sign up →" : "Already have an account? Sign in"}
+                {isLogin
+                  ? "Don't have an account? Sign up →"
+                  : "Already have an account? Sign in"}
               </button>
             </div>
 
@@ -380,15 +371,16 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
             {/* Terms & Privacy */}
             <p className="mt-5 text-[11px] text-center text-gray-400">
               By continuing you agree to our{" "}
-              <a 
-                href="#" 
+              <a
+                href="#"
                 onClick={(e) => e.preventDefault()}
                 className="text-indigo-500 hover:underline font-medium transition-colors"
               >
                 Terms
-              </a> &amp;{" "}
-              <a 
-                href="#" 
+              </a>{" "}
+              &amp;{" "}
+              <a
+                href="#"
                 onClick={(e) => e.preventDefault()}
                 className="text-indigo-500 hover:underline font-medium transition-colors"
               >
@@ -402,9 +394,23 @@ const AuthModal = ({ isOpen, onClose, isLogin, setIsLogin, onAuthSuccess }) => {
       {/* Add shake animation for error */}
       <style jsx>{`
         @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-          20%, 40%, 60%, 80% { transform: translateX(2px); }
+          0%,
+          100% {
+            transform: translateX(0);
+          }
+          10%,
+          30%,
+          50%,
+          70%,
+          90% {
+            transform: translateX(-2px);
+          }
+          20%,
+          40%,
+          60%,
+          80% {
+            transform: translateX(2px);
+          }
         }
         .animate-shake {
           animation: shake 0.5s ease-in-out;

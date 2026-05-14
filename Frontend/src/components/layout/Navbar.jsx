@@ -23,7 +23,7 @@ import {
   ChevronRight,
   FolderGit2,
 } from "lucide-react";
-import ProfileModal from "./ui/ProfileModal";
+import ProfileModal from "./ui/ProfileModal"; 
 
 const Navbar = ({ isAuthenticated, user, onLogout, onAuthModalOpen }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

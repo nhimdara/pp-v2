@@ -1,15 +1,3 @@
-// ─────────────────────────────────────────────────────────────
-//  App.jsx  —  With Auth Middleware (Role-based Routing)
-//
-//  Roles:  "admin"  → /admin/dashboard
-//          "client" → /home
-//
-//  Static accounts (see auth/authMiddleware.js):
-//    admin@learnflow.com  / Admin@123
-//    dara@learnflow.com   / Client@123
-//    sophea@learnflow.com / Student@123
-//  New registrations → always "client" role
-// ─────────────────────────────────────────────────────────────
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -51,7 +39,8 @@ import Settings from "./components/pages/Profile/Settings";
 
 // ── Admin Pages ──
 import AdminDashboard from "./components/pages/AdminDashboard";
-
+//__ Teacher Pages ──
+import TeacherDashboard from "./components/pages/TeacherDashboard";
 // ── Auth Pages ──
 import RegisterPage from "./components/layout/auth/Registerpage";
 import LoginPage from "./components/layout/auth/Loginpage";
@@ -110,7 +99,7 @@ const AppInner = () => {
   useEffect(() => {
     try {
       const settings = JSON.parse(
-        localStorage.getItem("learnflow_settings") || "{}"
+        localStorage.getItem("learnflow_settings") || "{}",
       );
       if (
         settings.theme === "dark" ||
@@ -138,10 +127,9 @@ const AppInner = () => {
     setIsAuthenticated(true);
     setIsAuthModalOpen(false);
 
-    // ── ROLE-BASED REDIRECT (core middleware logic) ──
+    // ── ROLE-BASED REDIRECT (supports admin, teacher, client) ──
     navigate(middlewareResult.redirect, { replace: true });
   };
-
   const handleLogout = () => {
     const { redirect } = logoutMiddleware();
     setUser(null);
@@ -151,10 +139,7 @@ const AppInner = () => {
 
   const handleUserUpdate = (updated) => {
     setUser(updated);
-    localStorage.setItem(
-      "learnflow_session",
-      JSON.stringify({ ...updated })
-    );
+    localStorage.setItem("learnflow_session", JSON.stringify({ ...updated }));
   };
 
   const openAuthModal = (mode) => {
@@ -185,18 +170,17 @@ const AppInner = () => {
         element={
           isAuthenticated ? (
             <Navigate
-              to={user?.role === "admin" ? "/admin/dashboard" : "/home"}
+              to={
+                user?.role === "admin"
+                  ? "/admin/dashboard"
+                  : user?.role === "teacher"
+                    ? "/teacher/dashboard"
+                    : "/home"
+              }
               replace
             />
           ) : (
             <div className="min-h-screen flex flex-col">
-              {/*
-                RegisterPage must call registerMiddleware and pass the
-                result to handleAuthSuccess:
-
-                const result = registerMiddleware(name, email, password);
-                if (result.success) props.onAuthSuccess(result);
-              */}
               <RegisterPage onAuthSuccess={handleAuthSuccess} />
               <Footer />
             </div>
@@ -210,18 +194,17 @@ const AppInner = () => {
         element={
           isAuthenticated ? (
             <Navigate
-              to={user?.role === "admin" ? "/admin/dashboard" : "/home"}
+              to={
+                user?.role === "admin"
+                  ? "/admin/dashboard"
+                  : user?.role === "teacher"
+                    ? "/teacher/dashboard"
+                    : "/home"
+              }
               replace
             />
           ) : (
             <div className="min-h-screen flex flex-col">
-              {/*
-                LoginPage must call loginMiddleware and pass the result:
-
-                const result = loginMiddleware(email, password);
-                if (result.success) props.onAuthSuccess(result);
-                else setError(result.error);
-              */}
               <LoginPage onAuthSuccess={handleAuthSuccess} />
               <Footer />
             </div>
@@ -237,6 +220,17 @@ const AppInner = () => {
         element={
           <ProtectedRoute requiredRole="admin">
             <AdminDashboard user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        }
+      />
+      {/* ───────────────────────────────────────────────────
+    TEACHER ROUTES  (requiredRole="teacher")
+─────────────────────────────────────────────────── */}
+      <Route
+        path="/teacher/dashboard"
+        element={
+          <ProtectedRoute requiredRole="teacher">
+            <TeacherDashboard user={user} onLogout={handleLogout} />
           </ProtectedRoute>
         }
       />
@@ -286,18 +280,6 @@ const AppInner = () => {
         }
       />
 
-      {/* My Courses — client only
-      <Route
-        path="/my-courses"
-        element={
-          <ProtectedRoute requiredRole="client">
-            <PageLayout {...layoutProps}>
-              <MyCourses user={user} />
-            </PageLayout>
-          </ProtectedRoute>
-        }
-      /> */}
-
       {/* Certificates — client only */}
       <Route
         path="/certificates"
@@ -309,30 +291,6 @@ const AppInner = () => {
           </ProtectedRoute>
         }
       />
-
-      {/* Schedule — client only
-      <Route
-        path="/schedule"
-        element={
-          <ProtectedRoute requiredRole="client">
-            <PageLayout {...layoutProps}>
-              <Schedule user={user} />
-            </PageLayout>
-          </ProtectedRoute>
-        }
-      /> */}
-
-      {/* Progress — client only
-      <Route
-        path="/progress"
-        element={
-          <ProtectedRoute requiredRole="client">
-            <PageLayout {...layoutProps}>
-              <ProgressTracker user={user} />
-            </PageLayout>
-          </ProtectedRoute>
-        }
-      /> */}
 
       {/* Settings — client only */}
       <Route
@@ -375,9 +333,7 @@ const AppInner = () => {
       {/* Catch-all */}
       <Route
         path="*"
-        element={
-          <Navigate to={hasRegistered ? "/login" : "/"} replace />
-        }
+        element={<Navigate to={hasRegistered ? "/login" : "/"} replace />}
       />
     </Routes>
   );

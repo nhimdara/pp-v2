@@ -80,28 +80,67 @@ const RegisterPage = ({ onAuthSuccess }) => {
     if (!validateStep()) return;
 
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const fullName = `${formData.firstName} ${formData.lastName}`;
 
-    // ── Register middleware: saves to localStorage, role always "client" ──
-    const result = registerMiddleware(fullName, formData.email, formData.password);
+    try {
+      // ── 1. Save to MySQL via backend API ──
+      const response = await fetch("http://localhost:5000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-    setIsLoading(false);
+      const data = await response.json();
 
-    if (!result.success) {
-      setErrors({ general: result.error });
-      return;
+      if (!response.ok) {
+        setErrors({
+          general: data.error || "Registration failed. Please try again.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // ── 2. Also save to localStorage (keeps local session working) ──
+      registerMiddleware(fullName, formData.email, formData.password);
+
+      setIsLoading(false);
+
+      // ── 3. Show success screen then navigate to login ──
+      setDone(true);
+      setTimeout(() => {
+        localStorage.removeItem("learnflow_session");
+        navigate("/login", { state: { registrationSuccess: true } });
+      }, 1800);
+    } catch (err) {
+      // ── Network error: fall back to localStorage-only registration ──
+      console.warn(
+        "API unreachable, falling back to localStorage:",
+        err.message,
+      );
+
+      const result = registerMiddleware(
+        fullName,
+        formData.email,
+        formData.password,
+      );
+      setIsLoading(false);
+
+      if (!result.success) {
+        setErrors({ general: result.error });
+        return;
+      }
+
+      setDone(true);
+      setTimeout(() => {
+        localStorage.removeItem("learnflow_session");
+        navigate("/login", { state: { registrationSuccess: true } });
+      }, 1800);
     }
-
-    // ── Show success screen then navigate to login page ──
-    setDone(true);
-    setTimeout(() => {
-      // Clear any auto-login session if exists
-      localStorage.removeItem("learnflow_session");
-      // Navigate to login page with success state
-      navigate("/login", { state: { registrationSuccess: true } });
-    }, 1800);
   };
 
   const setRole = (role) => {

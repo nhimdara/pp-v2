@@ -16,6 +16,9 @@ import {
   Layers,
   Lock,
   Loader2,
+  CreditCard,
+  User,
+  Mail,
 } from "lucide-react";
 import lessonImage from "./../assets/image/lessonpage.jpeg";
 import VideoModal from "./video/VideoModal";
@@ -135,8 +138,18 @@ const VideoCountBadge = ({ count }) => {
   );
 };
 
-// Subscription Modal Component
+// Enhanced Subscription Modal Component with form inputs
 const SubscriptionModal = ({ onClose, onSubscribe }) => {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [isProcessing, setIsProcessing] = useState(false);
+
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -144,6 +157,65 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+    if (!formData.cardNumber.trim()) {
+      newErrors.cardNumber = "Card number is required";
+    } else if (!/^\d{16}$/.test(formData.cardNumber.replace(/\s/g, ""))) {
+      newErrors.cardNumber = "Card number must be 16 digits";
+    }
+    if (!formData.expiryDate.trim()) {
+      newErrors.expiryDate = "Expiry date is required";
+    } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(formData.expiryDate)) {
+      newErrors.expiryDate = "Format: MM/YY";
+    }
+    if (!formData.cvv.trim()) {
+      newErrors.cvv = "CVV is required";
+    } else if (!/^\d{3,4}$/.test(formData.cvv)) {
+      newErrors.cvv = "CVV must be 3 or 4 digits";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setIsProcessing(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsProcessing(false);
+      onSubscribe();
+    }, 1500);
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: "" });
+    }
+  };
+
+  const formatCardNumber = (value) => {
+    const v = value.replace(/\s/g, "").replace(/\D/g, "").slice(0, 16);
+    return v.replace(/(\d{4})/g, "$1 ").trim();
+  };
+
+  const formatExpiryDate = (value) => {
+    const v = value.replace(/\D/g, "").slice(0, 4);
+    if (v.length >= 3) {
+      return `${v.slice(0, 2)}/${v.slice(2)}`;
+    }
+    return v;
+  };
 
   return (
     <div
@@ -154,41 +226,185 @@ const SubscriptionModal = ({ onClose, onSubscribe }) => {
         className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-fadeInUp"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-gradient-to-br from-indigo-600 to-violet-700 px-8 pt-10 pb-8 text-white text-center relative">
+        <div className="bg-gradient-to-br from-indigo-600 to-violet-700 px-8 pt-8 pb-6 text-white text-center relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-white/60 hover:text-white"
+            className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
           >
             ✕
           </button>
-          <div className="text-5xl mb-3">🔓</div>
           <h2 className="text-2xl font-bold mb-1">Unlock Full Access</h2>
           <p className="text-indigo-200 text-sm">
-            You've used your {FREE_VIDEO_LIMIT} free preview videos
+            Get unlimited access to all {FREE_VIDEO_LIMIT}+ videos
           </p>
-        </div>
-        <div className="p-8">
-          <div className="bg-indigo-50 rounded-2xl p-4 mb-6 text-center">
-            <div className="text-3xl font-bold text-indigo-700">
-              $9.99
-              <span className="text-base font-normal text-indigo-400">
-                /month
-              </span>
-            </div>
+          <div className="mt-4 inline-block bg-white/20 rounded-full px-4 py-1.5">
+            <span className="text-2xl font-bold">$9.99</span>
+            <span className="text-sm">/month</span>
           </div>
-          <button
-            onClick={onSubscribe}
-            className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-3.5 rounded-2xl hover:from-indigo-700 hover:to-violet-700 transition-all"
-          >
-            Subscribe Now →
-          </button>
         </div>
+
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="space-y-4">
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Full Name
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={formData.fullName}
+                  onChange={(e) =>
+                    handleInputChange("fullName", e.target.value)
+                  }
+                  placeholder="sok chea"
+                  className={`w-full pl-10 pr-3 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                    errors.fullName ? "border-red-500" : "border-gray-200"
+                  }`}
+                />
+              </div>
+              {errors.fullName && (
+                <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+              )}
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  placeholder="sokchea@example.com"
+                  className={`w-full pl-10 pr-3 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                    errors.email ? "border-red-500" : "border-gray-200"
+                  }`}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              )}
+            </div>
+
+            {/* Card Number */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Card Number
+              </label>
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={formData.cardNumber}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "cardNumber",
+                      formatCardNumber(e.target.value),
+                    )
+                  }
+                  placeholder="1234 5678 9012 3456"
+                  maxLength="19"
+                  className={`w-full pl-10 pr-3 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                    errors.cardNumber ? "border-red-500" : "border-gray-200"
+                  }`}
+                />
+              </div>
+              {errors.cardNumber && (
+                <p className="text-red-500 text-xs mt-1">{errors.cardNumber}</p>
+              )}
+            </div>
+
+            {/* Expiry Date & CVV */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Expiry Date
+                </label>
+                <input
+                  type="text"
+                  value={formData.expiryDate}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "expiryDate",
+                      formatExpiryDate(e.target.value),
+                    )
+                  }
+                  placeholder="MM/YY"
+                  maxLength="5"
+                  className={`w-full px-3 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                    errors.expiryDate ? "border-red-500" : "border-gray-200"
+                  }`}
+                />
+                {errors.expiryDate && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.expiryDate}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  CVV
+                </label>
+                <input
+                  type="password"
+                  value={formData.cvv}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "cvv",
+                      e.target.value.replace(/\D/g, "").slice(0, 4),
+                    )
+                  }
+                  placeholder="123"
+                  maxLength="4"
+                  className={`w-full px-3 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                    errors.cvv ? "border-red-500" : "border-gray-200"
+                  }`}
+                />
+                {errors.cvv && (
+                  <p className="text-red-500 text-xs mt-1">{errors.cvv}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Secure Badge */}
+            <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-2">
+              <Lock className="h-3 w-3" />
+              Secure 256-bit SSL encryption
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isProcessing}
+              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold py-3 rounded-xl hover:from-indigo-700 hover:to-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Subscribe Now →"
+              )}
+            </button>
+
+            <p className="text-center text-xs text-gray-500">
+              By subscribing, you agree to our Terms of Service and Privacy
+              Policy. You can cancel anytime.
+            </p>
+          </div>
+        </form>
       </div>
     </div>
   );
 };
 
-// Lesson Card Component
+// Lesson Card Component (same as before)
 const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
   const [hovered, setHovered] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
@@ -387,7 +603,7 @@ const LessonCard = ({ lesson, isSubscribed, onSubscribeRequest }) => {
   );
 };
 
-// Semester Section Component
+// Semester Section Component (same as before)
 const SemesterSection = ({
   label,
   items,
@@ -503,6 +719,24 @@ const LessonsPage = () => {
   const semesters = buildSemesters(lessons);
   const isDark = document.documentElement.classList.contains("dark-mode");
 
+  // Define which categories to HIDE
+  const hiddenCategories = [
+    "Programming",
+    "Design",
+    "Business",
+    "Marketing",
+    "Mathematics",
+    "Science",
+    "General",
+    "Project",
+    "Management",
+    "Systems",
+  ];
+
+  const visibleCategories = categories.filter(
+    (cat) => !hiddenCategories.includes(cat),
+  );
+
   useEffect(() => {
     const onScroll = () => {
       const total = document.documentElement.scrollHeight - window.innerHeight;
@@ -593,15 +827,15 @@ const LessonsPage = () => {
       {/* Subscription Badge */}
       <div className="fixed top-4 right-4 z-40">
         {isSubscribed ? (
-          <div className="bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg">
-            ✅ Subscribed
+          <div className="bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+            <span>✅</span> Subscribed
           </div>
         ) : (
           <button
             onClick={() => setShowSubscriptionModal(true)}
-            className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg hover:from-indigo-700 transition-all"
+            className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg hover:from-indigo-700 transition-all flex items-center gap-2"
           >
-            🔓 Subscribe
+            <span>🔓</span> Subscribe
           </button>
         )}
       </div>
@@ -629,9 +863,9 @@ const LessonsPage = () => {
             {!isSubscribed && (
               <button
                 onClick={() => setShowSubscriptionModal(true)}
-                className="mt-6 bg-white text-indigo-700 font-bold px-6 py-3 rounded-2xl hover:bg-indigo-50 transition-all"
+                className="mt-6 bg-white text-indigo-700 font-bold px-6 py-3 rounded-2xl hover:bg-indigo-50 transition-all flex items-center gap-2"
               >
-                🔓 Unlock All — $9.99/mo
+                <span>🔓</span> Unlock All — $9.99/mo
               </button>
             )}
           </div>
@@ -652,7 +886,7 @@ const LessonsPage = () => {
             </div>
             <button
               onClick={() => setShowSubscriptionModal(true)}
-              className="bg-amber-600 text-white px-5 py-2 rounded-xl hover:bg-amber-700"
+              className="bg-amber-600 text-white px-5 py-2 rounded-xl hover:bg-amber-700 transition-colors"
             >
               Unlock All →
             </button>
@@ -683,7 +917,7 @@ const LessonsPage = () => {
         {/* Filters */}
         <div className="mb-12 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => (
+            {visibleCategories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -693,12 +927,14 @@ const LessonsPage = () => {
               </button>
             ))}
           </div>
+
+          {/* Level Filter */}
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5 text-gray-400" />
             <select
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value)}
-              className="rounded-lg px-4 py-2 text-sm border focus:outline-none"
+              className="rounded-lg px-4 py-2 text-sm border focus:outline-none bg-white"
             >
               {levels.map((lv) => (
                 <option key={lv}>{lv}</option>
@@ -730,6 +966,8 @@ const LessonsPage = () => {
           onSubscribe={() => {
             setIsSubscribed(true);
             setShowSubscriptionModal(false);
+            // You can also store subscription status in localStorage or your backend
+            localStorage.setItem("isSubscribed", "true");
           }}
         />
       )}

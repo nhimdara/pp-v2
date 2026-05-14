@@ -187,14 +187,9 @@ const Settings = ({ user, onLogout }) => {
 
   const tabs = [
     { id: "profile",       label: "Profile",           icon: User,       desc: "Personal information" },
-    { id: "notifications", label: "Notifications",     icon: Bell,       desc: "Alerts & updates" },
-    { id: "appearance",    label: "Appearance",        icon: Sun,        desc: "Look & feel" },
-    { id: "privacy",       label: "Privacy",           icon: Shield,     desc: "Visibility controls" },
+    { id: "appearance",    label: "Appearance",        icon: SettingsIcon, desc: "Theme & display options" },
     { id: "language",      label: "Language & Region", icon: Globe,      desc: "Locale preferences" },
-    { id: "security",      label: "Security",          icon: Lock,       desc: "Account protection" },
     { id: "payment",       label: "Payment",           icon: CreditCard, desc: "Billing & methods" },
-    { id: "accessibility", label: "Accessibility",     icon: Volume2,    desc: "Usability options" },
-    { id: "downloads",     label: "Downloads",         icon: Download,   desc: "Offline content" },
   ];
 
   return (
@@ -333,31 +328,6 @@ const Settings = ({ user, onLogout }) => {
                   </div>
                 )}
 
-                {/* NOTIFICATIONS */}
-                {activeTab === "notifications" && (
-                  <div>
-                    <SectionHeader title="Notifications" description="Control how and when you receive alerts" onSave={() => handleSave("Notifications")} isLoading={isLoading} />
-                    <div className="space-y-5 max-w-2xl">
-                      <div className="sett-card space-y-4">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Email Notifications</p>
-                        <ToggleSwitch label="Email Notifications" description="Receive updates and alerts via email" checked={settings.emailNotifications} onChange={() => handleToggle("emailNotifications")} />
-                        <ToggleSwitch label="Course Updates" description="Notify when enrolled courses are updated" checked={settings.courseUpdates} onChange={() => handleToggle("courseUpdates")} />
-                        <ToggleSwitch label="Achievement Alerts" description="Celebrate when you earn a new badge" checked={settings.achievementAlerts} onChange={() => handleToggle("achievementAlerts")} />
-                        <ToggleSwitch label="Deadline Reminders" description="Get reminded before project deadlines" checked={settings.deadlineReminders} onChange={() => handleToggle("deadlineReminders")} />
-                        <ToggleSwitch label="Discussion Replies" description="When someone replies to your comments" checked={settings.discussionReplies} onChange={() => handleToggle("discussionReplies")} />
-                        <ToggleSwitch label="Mentor Messages" description="Receive messages from your mentors" checked={settings.mentorMessages} onChange={() => handleToggle("mentorMessages")} />
-                        <ToggleSwitch label="Marketing Emails" description="Promotional offers and platform news" checked={settings.marketingEmails} onChange={() => handleToggle("marketingEmails")} />
-                        <ToggleSwitch label="Weekly Newsletter" description="A digest of new content each week" checked={settings.newsletterSubscription} onChange={() => handleToggle("newsletterSubscription")} />
-                      </div>
-                      <div className="sett-card space-y-4">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Push Notifications</p>
-                        <ToggleSwitch label="Browser Push Notifications" description="Real-time alerts in your browser" checked={settings.pushNotifications} onChange={() => handleToggle("pushNotifications")} />
-                        <ToggleSwitch label="Lesson Reminders" description="Reminders for your scheduled lessons" checked={settings.lessonReminders} onChange={() => handleToggle("lessonReminders")} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* APPEARANCE */}
                 {activeTab === "appearance" && (
                   <div>
@@ -419,39 +389,6 @@ const Settings = ({ user, onLogout }) => {
                   </div>
                 )}
 
-                {/* PRIVACY */}
-                {activeTab === "privacy" && (
-                  <div>
-                    <SectionHeader title="Privacy Settings" description="Control what others can see about you" onSave={() => handleSave("Privacy")} isLoading={isLoading} />
-                    <div className="space-y-5 max-w-2xl">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Field label="Profile Visibility">
-                          <select className="sett-select" value={settings.profileVisibility} onChange={e => handleChange("profileVisibility", e.target.value)}>
-                            <option value="public">Public — Everyone</option>
-                            <option value="friends">Friends only</option>
-                            <option value="private">Private — Only me</option>
-                          </select>
-                        </Field>
-                        <Field label="Who can message you?">
-                          <select className="sett-select" value={settings.allowMessages} onChange={e => handleChange("allowMessages", e.target.value)}>
-                            <option value="everyone">Everyone</option>
-                            <option value="friends">Friends only</option>
-                            <option value="none">No one</option>
-                          </select>
-                        </Field>
-                      </div>
-                      <div className="sett-card space-y-4">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Visibility Options</p>
-                        <ToggleSwitch label="Show Progress" description="Display your learning progress publicly" checked={settings.showProgress} onChange={() => handleToggle("showProgress")} />
-                        <ToggleSwitch label="Show Achievements" description="Show your badges on your profile" checked={settings.showAchievements} onChange={() => handleToggle("showAchievements")} />
-                        <ToggleSwitch label="Show Courses" description="Display which courses you're enrolled in" checked={settings.showCourses} onChange={() => handleToggle("showCourses")} />
-                        <ToggleSwitch label="Show Certificates" description="Display your earned certificates" checked={settings.showCertificates} onChange={() => handleToggle("showCertificates")} />
-                        <ToggleSwitch label="Show Email" description="Display your email on your profile" checked={settings.showEmail} onChange={() => handleToggle("showEmail")} />
-                        <ToggleSwitch label="Activity Status" description="Show when you're online" checked={settings.activityStatus} onChange={() => handleToggle("activityStatus")} />
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {/* LANGUAGE */}
                 {activeTab === "language" && (
@@ -498,67 +435,6 @@ const Settings = ({ user, onLogout }) => {
                           <option value="GBP">GBP — British Pound</option>
                         </select>
                       </Field>
-                    </div>
-                  </div>
-                )}
-
-                {/* SECURITY */}
-                {activeTab === "security" && (
-                  <div>
-                    <SectionHeader title="Security" description="Protect your account" onSave={() => handleSave("Security")} isLoading={isLoading} />
-                    <div className="space-y-5 max-w-2xl">
-                      <div className="sett-card space-y-4">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Change Password</p>
-                        <Field label="Current Password">
-                          <div className="relative">
-                            <input className="sett-input" type={showPassword ? "text" : "password"} value={settings.currentPassword} onChange={e => handleChange("currentPassword", e.target.value)} placeholder="••••••••" style={{ paddingRight: "44px" }} />
-                            <button onClick={() => setShowPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                          </div>
-                        </Field>
-                        <Field label="New Password"><input className="sett-input" type="password" value={settings.newPassword} onChange={e => handleChange("newPassword", e.target.value)} placeholder="••••••••" /></Field>
-                        <Field label="Confirm New Password"><input className="sett-input" type="password" value={settings.confirmPassword} onChange={e => handleChange("confirmPassword", e.target.value)} placeholder="••••••••" /></Field>
-                      </div>
-                      <div className="sett-card space-y-4">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Security Options</p>
-                        <ToggleSwitch label="Two-Factor Authentication" description="Add an extra layer of security" checked={settings.twoFactorAuth} onChange={() => handleToggle("twoFactorAuth")} />
-                        <ToggleSwitch label="Login Alerts" description="Get notified of new sign-ins" checked={settings.loginAlerts} onChange={() => handleToggle("loginAlerts")} />
-                      </div>
-                      <div className="sett-card">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Active Sessions</p>
-                        <div className="space-y-2">
-                          {[
-                            { device: "Current Device", detail: "Chrome · Phnom Penh, Cambodia", active: true },
-                            { device: "iPhone 13",       detail: "Safari · 2 days ago",           active: false },
-                          ].map((s, i) => (
-                            <div key={i} className="flex items-center justify-between p-3 rounded-xl" style={{ background: "white", border: "1px solid #f0f0f8" }}>
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "#f3f4f6" }}>
-                                  <Smartphone className="h-4 w-4 text-gray-500" />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-semibold text-gray-800">{s.device}</p>
-                                  <p className="text-xs text-gray-500">{s.detail}</p>
-                                </div>
-                              </div>
-                              {s.active
-                                ? <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: "#dcfce7", color: "#166534" }}>Active</span>
-                                : <button className="text-xs font-semibold text-red-600 hover:text-red-700">Revoke</button>}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="danger-zone">
-                        <div className="flex items-start gap-3">
-                          <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <p className="font-semibold text-red-900 text-sm">Delete Account</p>
-                            <p className="text-xs text-red-700 mt-0.5 leading-relaxed">Once deleted, all your data is permanently removed.</p>
-                          </div>
-                          <button className="px-3 py-1.5 rounded-xl text-sm font-semibold text-white flex-shrink-0" style={{ background: "#ef4444" }}>Delete</button>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 )}
@@ -611,66 +487,6 @@ const Settings = ({ user, onLogout }) => {
                                 </div>
                               </div>
                               <span className="text-sm font-bold text-gray-800">$9.99</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ACCESSIBILITY */}
-                {activeTab === "accessibility" && (
-                  <div>
-                    <SectionHeader title="Accessibility" description="Make the platform work better for you" onSave={() => handleSave("Accessibility")} isLoading={isLoading} />
-                    <div className="sett-card space-y-4 max-w-2xl">
-                      <ToggleSwitch label="Screen Reader Support" description="Optimize for screen readers and assistive technologies" checked={settings.screenReader} onChange={() => handleToggle("screenReader")} />
-                      <ToggleSwitch label="High Contrast Mode" description="Increase contrast for better visibility" checked={settings.highContrastMode} onChange={() => handleToggle("highContrastMode")} />
-                      <ToggleSwitch label="Reduced Motion" description="Minimize animations and motion effects" checked={settings.reducedMotion} onChange={() => handleToggle("reducedMotion")} />
-                      <ToggleSwitch label="Keyboard Navigation" description="Enhanced keyboard navigation support" checked={settings.keyboardNavigation} onChange={() => handleToggle("keyboardNavigation")} />
-                      <ToggleSwitch label="Always Show Captions" description="Display captions on all video content" checked={settings.captionPreferences} onChange={() => handleToggle("captionPreferences")} />
-                    </div>
-                  </div>
-                )}
-
-                {/* DOWNLOADS */}
-                {activeTab === "downloads" && (
-                  <div>
-                    <SectionHeader title="Downloads & Offline" description="Manage your offline content and storage" onSave={() => handleSave("Downloads")} isLoading={isLoading} />
-                    <div className="space-y-5 max-w-2xl">
-                      <div className="sett-card">
-                        <div className="flex items-center justify-between mb-3">
-                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Storage Used</p>
-                          <span className="text-sm font-bold text-gray-700">{settings.usedStorage} / {settings.storageLimit}</span>
-                        </div>
-                        <div className="h-2.5 rounded-full overflow-hidden" style={{ background: "#e5e7eb" }}>
-                          <div className="h-full rounded-full" style={{ width: "32%", background: "linear-gradient(90deg,#6366f1,#8b5cf6)" }} />
-                        </div>
-                      </div>
-                      <div className="sett-card space-y-4">
-                        <ToggleSwitch label="Auto-Download" description="Automatically download new lessons on Wi-Fi" checked={settings.autoDownload} onChange={() => handleToggle("autoDownload")} />
-                        <ToggleSwitch label="Offline Access" description="Access downloaded content without internet" checked={settings.offlineAccess} onChange={() => handleToggle("offlineAccess")} />
-                      </div>
-                      <Field label="Download Quality">
-                        <select className="sett-select" value={settings.downloadQuality} onChange={e => handleChange("downloadQuality", e.target.value)}>
-                          <option value="hd">HD (1080p) — Best quality</option>
-                          <option value="sd">SD (480p) — Balanced</option>
-                          <option value="ld">LD (240p) — Smallest files</option>
-                        </select>
-                      </Field>
-                      <div className="sett-card">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Downloaded Content</p>
-                        <div className="space-y-2">
-                          {[
-                            { name: "Advanced React Development", size: "1.2 GB" },
-                            { name: "Full Stack JavaScript",       size: "850 MB" },
-                          ].map(item => (
-                            <div key={item.name} className="flex items-center justify-between p-3 rounded-xl" style={{ background: "white", border: "1px solid #f0f0f8" }}>
-                              <div className="flex items-center gap-3">
-                                <BookOpen className="h-4 w-4 text-indigo-400" />
-                                <span className="text-sm text-gray-700 font-medium">{item.name}</span>
-                              </div>
-                              <span className="text-xs font-semibold text-gray-500">{item.size}</span>
                             </div>
                           ))}
                         </div>
