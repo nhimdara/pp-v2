@@ -31,7 +31,3 @@ cd Frontend
 node server.js
 
 npm run dev
-<<<<<<< HEAD
-=======
-
->>>>>>> 564fe55cbcd7b0162fe73d795c6e4228e34b63eb
