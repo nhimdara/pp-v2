@@ -31,7 +31,4 @@ cd Frontend
 node server.js
 
 npm run dev
-<<<<<<< HEAD
-=======
 
->>>>>>> d896a90 (fix: rename Teacherdashboard to TeacherDashboard)
