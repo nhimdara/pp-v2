@@ -29,7 +29,7 @@ import {
   Menu,
 } from "lucide-react";
 
-const API_BASE = "https://pp-v2.onrender.com/api";
+const API_BASE = "http://localhost:5000/api";
 
 // ─────────────────────────────────────────────────────────────
 //  YOUTUBE HELPERS

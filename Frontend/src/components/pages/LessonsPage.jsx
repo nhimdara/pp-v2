@@ -25,7 +25,7 @@ import VideoModal from "./video/VideoModal";
 import VideoPlaylistModal from "./video/VideoPlaylistModal";
 
 // ─── API ────────────────────────────────────────────────────
-const API_BASE = "https://pp-v2.onrender.com/api";
+const API_BASE = "http://localhost:5000/api";
 
 async function fetchLessons() {
   const [lessonsRes, videosRes] = await Promise.all([
@@ -778,7 +778,7 @@ const LessonsPage = () => {
         </p>
         <p className="text-gray-400 text-sm">
           Make sure your backend is running on{" "}
-          <code>https://pp-v2.onrender.com</code>
+          <code>http://localhost:5000</code>
         </p>
         <button
           onClick={() => {

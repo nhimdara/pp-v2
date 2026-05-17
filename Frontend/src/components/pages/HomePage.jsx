@@ -6,20 +6,20 @@ import banner from "./../assets/image/banner.jpg";
 /* ── Dark mode hook ── */
 const useDarkMode = () => {
   const [dark, setDark] = React.useState(() =>
-    document.documentElement.classList.contains("dark-mode"),
+    document.documentElement.classList.contains("dark-mode")
   );
-
+  
   React.useEffect(() => {
     const observer = new MutationObserver(() => {
       const isDark = document.documentElement.classList.contains("dark-mode");
       setDark(isDark);
     });
-
+    
     observer.observe(document.documentElement, { attributeFilter: ["class"] });
-
+    
     return () => observer.disconnect();
   }, []);
-
+  
   return dark;
 };
 
@@ -194,7 +194,7 @@ const useScrollReveal = () => {
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
     );
 
     els.forEach((el) => observer.observe(el));
@@ -500,10 +500,7 @@ const HomePage = () => {
 
               <ul className="anim-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mb-8 sm:mb-10">
                 {features.map((f, index) => (
-                  <li
-                    key={index}
-                    className="flex items-center gap-2 text-sm text-white/80"
-                  >
+                  <li key={index} className="flex items-center gap-2 text-sm text-white/80">
                     <CheckCircle
                       className="h-4 w-4 text-cyan-400 flex-shrink-0"
                       strokeWidth={2.5}
@@ -567,12 +564,9 @@ const HomePage = () => {
       </section>
 
       {/* ══════════════ ABOUT SECTION ══════════════ */}
-      <section
-        id="about"
-        className="py-20 sm:py-28"
-        style={{ background: dark ? "#0a0a14" : "white" }}
-      >
+      <section id="about" className="py-20 sm:py-28" style={{ background: dark ? "#0a0a14" : "white" }}>
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+
           {/* Section header */}
           <div className="text-center mb-12 sm:mb-16">
             <span
@@ -585,13 +579,12 @@ const HomePage = () => {
             <h2
               data-reveal
               data-delay="80"
-              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-4"
+              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-4" 
               style={{ color: dark ? "#f0f0fa" : "#111827" }}
             >
               Built for the
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
-                {" "}
-                future of learning
+                {" "}future of learning
               </span>
             </h2>
             <p
@@ -607,31 +600,23 @@ const HomePage = () => {
 
           {/* Cards grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {aboutCards.map(
-              ({ icon: Icon, color, bg, iconColor, title, desc }, idx) => (
+            {aboutCards.map(({ icon: Icon, color, bg, iconColor, title, desc }, idx) => (
+              <div
+                key={title}
+                data-reveal
+                data-delay={idx * 90}
+                className="about-card group relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-100/50 hover:-translate-y-1 transition-all duration-300"
+              >
                 <div
-                  key={title}
-                  data-reveal
-                  data-delay={idx * 90}
-                  className="about-card group relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-100/50 hover:-translate-y-1 transition-all duration-300"
-                >
-                  <div
-                    className={`absolute top-0 left-6 right-6 h-0.5 rounded-full bg-gradient-to-r ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                  />
-                  <div
-                    className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${bg} mb-4`}
-                  >
-                    <Icon className={`h-5 w-5 ${iconColor}`} strokeWidth={2} />
-                  </div>
-                  <h3 className="text-[1rem] font-bold text-gray-900 mb-2">
-                    {title}
-                  </h3>
-                  <p className="text-sm text-gray-500 leading-relaxed">
-                    {desc}
-                  </p>
+                  className={`absolute top-0 left-6 right-6 h-0.5 rounded-full bg-gradient-to-r ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                />
+                <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl ${bg} mb-4`}>
+                  <Icon className={`h-5 w-5 ${iconColor}`} strokeWidth={2} />
                 </div>
-              ),
-            )}
+                <h3 className="text-[1rem] font-bold text-gray-900 mb-2">{title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+              </div>
+            ))}
           </div>
 
           {/* CTA Banner */}
@@ -658,8 +643,8 @@ const HomePage = () => {
                 EduLearn. First course is completely free.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <button
-                  onClick={() => (window.location.href = "/lessons")}
+                <button                 
+                  onClick={() => window.location.href = "/lessons"}
                   className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-white text-indigo-700 font-bold text-sm sm:text-base shadow-xl hover:scale-[1.03] active:scale-[0.98] transition-all"
                 >
                   <Play className="h-4 w-4 fill-indigo-600" />

@@ -17,7 +17,7 @@ import {
 import lessonBanner from "./../assets/image/lessonpage.jpeg";
 
 // ─── API ─────────────────────────────────────────────────────
-const API_BASE = "https://pp-v2.onrender.com/api";
+const API_BASE = "http://localhost:5000/api";
 
 async function fetchLessons() {
   const res = await fetch(`${API_BASE}/lessons`);
@@ -280,7 +280,7 @@ const CalendarPage = () => {
         <p className="text-gray-400 text-sm">
           Make sure your backend is running on{" "}
           <code className="bg-gray-100 px-1 rounded">
-            https://pp-v2.onrender.com
+            http://localhost:5000
           </code>
         </p>
         <button
