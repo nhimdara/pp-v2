@@ -28,7 +28,7 @@ const ProjectsPage = () => {
     });
 
     // ✅ fetch projects from backend API
-    fetch("http://localhost:5000/api/projects")
+    fetch("https://pp-v2.onrender.com/api/projects")
       .then((res) => res.json())
       .then((data) => {
         setProjects(data);
